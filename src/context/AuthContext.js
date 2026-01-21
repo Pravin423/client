@@ -10,8 +10,8 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
 
   // Login
-  const login = async (email, password) => {
-    const { data } = await api.post("/api/auth/login", { email, password });
+  const login = async (email, password, org_id) => {
+    const { data } = await api.post("/api/auth/login", { email, password,org_id });
     setAccessToken(data.accessToken);
     setRole(data.role);
 
