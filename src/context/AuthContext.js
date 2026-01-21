@@ -1,8 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api from "../utils/api";
 import { jwtDecode } from "jwt-decode";
-
 
 const AuthContext = createContext();
 
@@ -12,8 +11,27 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [role, setRole] = useState(null);
   const [orgId, setOrgId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Login
+  // ✅ RESTORE AUTH ON PAGE REFRESH
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setAccessToken(token);
+        setRole(decoded.role);
+        setOrgId(decoded.org_id);
+      } catch (err) {
+        localStorage.removeItem("accessToken");
+      }
+    }
+
+    setLoading(false);
+  }, []);
+
+  // ✅ LOGIN
   const login = async (email, password, org_id) => {
     const { data } = await api.post("/api/auth/login", {
       email,
@@ -30,23 +48,10 @@ export const AuthProvider = ({ children }) => {
 
     localStorage.setItem("accessToken", data.accessToken);
 
-    // Role-based redirect
-    switch (data.role) {
-      case "admin":
-        router.push("/admin/dashboard");
-        break;
-      case "manager":
-        router.push("/manager/dashboard");
-        break;
-      case "employee":
-        router.push("/employee/dashboard");
-        break;
-      default:
-        router.push("/");
-    }
+    router.push(`/${data.role}/dashboard`);
   };
 
-  // ✅ Register
+  // ✅ REGISTER
   const register = async (name, email, password, org_id, role = "employee") => {
     const res = await api.post("/api/auth/register", {
       name,
@@ -58,15 +63,17 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  // ✅ Logout
+  // ✅ LOGOUT
   const logout = async () => {
     await api.post("/api/auth/logout");
+    localStorage.removeItem("accessToken");
     setAccessToken(null);
     setRole(null);
     setOrgId(null);
-    localStorage.removeItem("accessToken");
     router.push("/login");
   };
+
+  if (loading) return null; // ⛔ Prevent redirect flicker
 
   return (
     <AuthContext.Provider
