@@ -2,8 +2,9 @@ import ProtectedRoute from "../../components/ProtectedRoute";
 import { useRouter } from "next/router";
 import { logoutUser } from "@/utils/auth";
 import Router from "next/router";
-
+import { useAuth } from "@/context/AuthContext";
 export default function AdminDashboard() {
+   const { orgId } = useAuth();
  return (
   <ProtectedRoute allowedRoles={["admin"]}>
     <div className="p-6">
@@ -12,6 +13,9 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <p className="mt-2 text-gray-600">
+              <strong>Organization ID:</strong> {orgId}
+            </p>
           <p className="text-gray-600">Only Admin can see this.</p>
         </div>
 
