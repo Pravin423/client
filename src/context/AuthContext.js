@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
       name,
       email,
       password,
-      org_id: Number(org_id),
+      org_id: org_id,
       role
     });
     return res.data;
