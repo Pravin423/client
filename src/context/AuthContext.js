@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null); // user object
 
-  // ✅ RESTORE AUTH ON PAGE REFRESH
+  // RESTORE AUTH ON PAGE REFRESH
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
@@ -25,11 +25,11 @@ export const AuthProvider = ({ children }) => {
         setRole(decoded.role);
         setOrgId(decoded.org_id);
 
-        // store user info
         setUser({
           name: decoded.name || null,
           email: decoded.email || null,
-          role: decoded.role || null
+          role: decoded.role || null,
+          orgId: decoded.org_id || null, // add orgId here
         });
       } catch (err) {
         console.error("Invalid token:", err);
@@ -40,14 +40,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // ✅ LOGIN
+  // LOGIN
   const login = async (email, password, org_id) => {
-    const { data } = await api.post("/api/auth/login", {
-      email,
-      password,
-      org_id
-    });
-
+    const { data } = await api.post("/api/auth/login", { email, password, org_id });
     const decoded = jwtDecode(data.accessToken);
 
     setAccessToken(data.accessToken);
@@ -57,27 +52,21 @@ export const AuthProvider = ({ children }) => {
     setUser({
       name: decoded.name || null,
       email: decoded.email || null,
-      role: decoded.role || null
+      role: decoded.role || null,
+      orgId: decoded.org_id || null,
     });
 
     localStorage.setItem("accessToken", data.accessToken);
-
     router.push(`/${decoded.role}/dashboard`);
   };
 
-  // ✅ REGISTER
+  // REGISTER
   const register = async (name, email, password, org_id, role = "employee") => {
-    const res = await api.post("/api/auth/register", {
-      name,
-      email,
-      password,
-      org_id,
-      role
-    });
+    const res = await api.post("/api/auth/register", { name, email, password, org_id, role });
     return res.data;
   };
 
-  // ✅ LOGOUT
+  // LOGOUT
   const logout = async () => {
     await api.post("/api/auth/logout").catch(() => {});
     localStorage.removeItem("accessToken");
@@ -88,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     router.push("/login");
   };
 
-  if (loading) return null; // prevent flicker
+  if (loading) return null;
 
   return (
     <AuthContext.Provider
@@ -99,5 +88,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// 🔑 Hook to use AuthContext
+// Hook to use AuthContext
 export const useAuth = () => useContext(AuthContext);
