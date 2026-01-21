@@ -41,12 +41,12 @@ export default function EmployeeDashboard() {
 
             <InfoCard
               title="Logged in as"
-              value={user?.name || user?.email || "Employee"}
+              value={user?.name || user?.email || "your name or Email-ID"}
             />
 
             <InfoCard
               title="Role"
-              value="Employee"
+              value="role will be fetched from the database"
             />
 
             <InfoCard
