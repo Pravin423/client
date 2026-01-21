@@ -1,40 +1,96 @@
-
-
 import ProtectedRoute from "../../components/ProtectedRoute";
-import { useRouter } from "next/router";
-import { logoutUser } from "@/utils/auth";
 import Router from "next/router";
+import { logoutUser } from "@/utils/auth";
 import { useAuth } from "@/context/AuthContext";
+
 export default function ManagerDashboard() {
-  const { orgId } = useAuth();
+  const { orgId, user } = useAuth(); // 👈 user added
+
   return (
     <ProtectedRoute allowedRoles={["manager"]}>
-      <div className="p-6">
+      <div className="min-h-screen bg-gray-50">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* TOP BAR */}
+        <header className="flex justify-between items-center px-10 py-4 bg-white border-b">
           <div>
-            <h1 className="text-2xl font-bold">manager Dashboard</h1>
-            <p className="mt-2 text-gray-600">
-              <strong>Organization ID:</strong> {orgId}
-            </p>
-            <p className="text-gray-600">Only manager can see this.</p>
+            <h1 className="text-xl font-bold text-blue-600">
+              ScrumFlow
+            </h1>
           </div>
 
-          {/* Logout Button */}
           <button
             onClick={async () => {
               await logoutUser();
               Router.replace("/login");
             }}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
           >
             Logout
           </button>
-        </div>
+        </header>
 
+        {/* DASHBOARD CONTENT */}
+        <main className="p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Manager Dashboard
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Overview of your organization and management controls
+          </p>
+
+          {/* INFO CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <InfoCard
+              title="Logged in as"
+              value={user?.name || user?.email || "Manager"}
+            />
+
+            <InfoCard
+              title="Role"
+              value="Manager"
+            />
+
+            <InfoCard
+              title="Organization ID"
+              value={orgId}
+            />
+
+          </div>
+
+          {/* PLACEHOLDER SECTIONS */}
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <PlaceholderCard title="Sprint Overview" />
+            <PlaceholderCard title="Team Performance" />
+          </div>
+        </main>
       </div>
     </ProtectedRoute>
   );
+}
 
+/* ---------- SMALL COMPONENTS ---------- */
+
+function InfoCard({ title, value }) {
+  return (
+    <div className="bg-white border rounded-xl p-6 shadow-sm">
+      <p className="text-sm text-gray-500 mb-1">{title}</p>
+      <h3 className="text-lg font-semibold text-gray-900">
+        {value}
+      </h3>
+    </div>
+  );
+}
+
+function PlaceholderCard({ title }) {
+  return (
+    <div className="bg-white border rounded-xl p-6 shadow-sm">
+      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        {title}
+      </h3>
+      <p className="text-sm text-gray-500">
+        This section will display real-time data in future iterations.
+      </p>
+    </div>
+  );
 }

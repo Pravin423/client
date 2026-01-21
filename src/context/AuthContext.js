@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api from "../utils/api";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode"; // fixed import
 
 const AuthContext = createContext();
 
@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
   const [orgId, setOrgId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null); // user object
 
   // ✅ RESTORE AUTH ON PAGE REFRESH
   useEffect(() => {
@@ -19,11 +20,19 @@ export const AuthProvider = ({ children }) => {
 
     if (token) {
       try {
-        const decoded = jwtDecode(token);
+        const decoded = jwtDecode(token); // decoded payload from JWT
         setAccessToken(token);
         setRole(decoded.role);
         setOrgId(decoded.org_id);
+
+        // store user info
+        setUser({
+          name: decoded.name || null,
+          email: decoded.email || null,
+          role: decoded.role || null
+        });
       } catch (err) {
+        console.error("Invalid token:", err);
         localStorage.removeItem("accessToken");
       }
     }
@@ -40,15 +49,20 @@ export const AuthProvider = ({ children }) => {
     });
 
     const decoded = jwtDecode(data.accessToken);
-    console.log("DECODED TOKEN 👉", decoded);
 
     setAccessToken(data.accessToken);
-    setRole(data.role);
+    setRole(decoded.role);
     setOrgId(decoded.org_id);
+
+    setUser({
+      name: decoded.name || null,
+      email: decoded.email || null,
+      role: decoded.role || null
+    });
 
     localStorage.setItem("accessToken", data.accessToken);
 
-    router.push(`/${data.role}/dashboard`);
+    router.push(`/${decoded.role}/dashboard`);
   };
 
   // ✅ REGISTER
@@ -65,23 +79,25 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ LOGOUT
   const logout = async () => {
-    await api.post("/api/auth/logout");
+    await api.post("/api/auth/logout").catch(() => {});
     localStorage.removeItem("accessToken");
     setAccessToken(null);
     setRole(null);
     setOrgId(null);
+    setUser(null);
     router.push("/login");
   };
 
-  if (loading) return null; // ⛔ Prevent redirect flicker
+  if (loading) return null; // prevent flicker
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, role, orgId, login, logout, register }}
+      value={{ accessToken, role, orgId, user, login, logout, register }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
+// 🔑 Hook to use AuthContext
 export const useAuth = () => useContext(AuthContext);
