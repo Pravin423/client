@@ -18,7 +18,7 @@ api.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const { data } = await api.post("/auth/refresh");
+        const { data } = await api.post("/api/auth/refresh");
         api.defaults.headers.common["Authorization"] =
           "Bearer " + data.accessToken;
         originalRequest.headers["Authorization"] = "Bearer " + data.accessToken;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import Router, { useRouter } from "next/router";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -17,20 +18,34 @@ export default function LoginPage() {
       setError(err.response?.data?.message || "Login failed");
     }
   };
+const router= useRouter();
+  const handleregister=()=>{
+    router.push("/register")
+    
+  }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form className="p-6 border rounded shadow-md w-full max-w-md" onSubmit={handleSubmit}>
-        <h1 className="text-2xl font-bold mb-4">Login</h1>
+ return (
+  <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="w-full max-w-md  border p-8 rounded-lg shadow-lg">
+      
+      {/* Header */}
+      <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
 
-        {error && <p className="text-red-500 mb-2">{error}</p>}
+      {/* Error */}
+      {error && (
+        <p className="text-red-500 text-sm text-center mb-4">
+          {error}
+        </p>
+      )}
 
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          className="w-full mb-3 p-2 border rounded"
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
 
@@ -39,14 +54,34 @@ export default function LoginPage() {
           placeholder="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          className="w-full mb-3 p-2 border rounded"
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
 
-        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded font-medium transition"
+        >
           Login
         </button>
       </form>
+
+      {/* Divider */}
+      <div className="flex items-center my-6">
+        <div className="flex-1 h-px bg-gray-300"></div>
+        <span className="px-3 text-sm text-gray-500">OR</span>
+        <div className="flex-1 h-px bg-gray-300"></div>
+      </div>
+
+      {/* Register Button */}
+      <button
+        onClick={handleregister}
+        className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 p-2 rounded font-medium transition"
+      >
+        Register Now
+      </button>
     </div>
-  );
+  </div>
+);
+
 }

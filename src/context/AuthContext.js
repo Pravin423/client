@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
 
   // Login
   const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+    const { data } = await api.post("/api/auth/login", { email, password });
     setAccessToken(data.accessToken);
     setRole(data.role);
 
@@ -31,15 +31,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
   // Register
-  const register = async (name, email, password) => {
-    await api.post("/auth/register", { name, email, password });
-    router.push("/login");
+  const register = async (name, email, password, org_id, role = "employee") => {
+    const res = await api.post("/api/auth/register", {
+      name,
+      email,
+      password,
+      org_id: Number(org_id),
+      role
+    });
+    return res.data;
   };
 
   // Logout
   const logout = async () => {
-    await api.post("/auth/logout");
+    await api.post("/api/auth/logout");
     setAccessToken(null);
     setRole(null);
     router.push("/login");
