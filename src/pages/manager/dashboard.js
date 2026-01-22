@@ -130,9 +130,9 @@ export default function ManagerDashboard() {
               {/* STATS/PROFILE ROW */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
                 <InfoCard icon={<User className="text-blue-500" />} title="Lead Manager" value={manager?.name} />
-                <InfoCard icon={<Mail className="text-purple-500" />} title="Corporate Email" value={manager?.email} />
+                <InfoCard icon={<Mail className="text-purple-500" />} title="Work Email" value={manager?.email} />
                 <InfoCard icon={<Building2 className="text-emerald-500" />} title="Organization" value={manager?.org?.name} />
-                <InfoCard icon={<CheckCircle className="text-orange-500" />} title="Sync ID" value={manager?.org?.id} />
+                <InfoCard icon={<CheckCircle className="text-orange-500" />} title="Organization ID" value={manager?.org?.id} />
               </div>
 
               {/* MANAGER ACTIONS */}

@@ -12,11 +12,13 @@ import {
   Building2, 
   Hash, 
   LogOut, 
-  Command, // This matches the Home Page logo icon
+  Command, 
   Sun, 
   Moon, 
   ChevronRight,
-  Zap
+  Zap,
+  Copy,
+  CheckCircle2
 } from "lucide-react";
 
 export default function EmployeeDashboard() {
@@ -26,7 +28,6 @@ export default function EmployeeDashboard() {
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
-    // Theme sync
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "light") {
       setIsDark(false);
@@ -69,13 +70,10 @@ export default function EmployeeDashboard() {
     <ProtectedRoute allowedRoles={["employee"]}>
       <div className="min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-200 transition-colors duration-300">
         
-        {/* Background Glows (Dark Mode Only) */}
         <div className="fixed top-0 right-0 w-[400px] h-[400px] bg-blue-600/5 blur-[100px] pointer-events-none -z-10 hidden dark:block" />
 
-        {/* TOP BAR */}
         <header className="sticky top-0 z-50 flex justify-between items-center px-8 py-4 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/50">
           <div className="flex items-center gap-2 group">
-            {/* Same Logo Icon from Index/Home */}
             <div className="bg-blue-600 dark:bg-purple-600 p-1.5 rounded-lg shadow-lg group-hover:rotate-6 transition-transform">
               <Command className="text-white w-5 h-5" />
             </div>
@@ -87,7 +85,7 @@ export default function EmployeeDashboard() {
           <div className="flex items-center gap-4">
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-slate-700"
+              className="p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -110,7 +108,6 @@ export default function EmployeeDashboard() {
             </div>
           ) : (
             <>
-              {/* WELCOME HEADER */}
               <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                   <h2 className="text-3xl font-black dark:text-white tracking-tight mb-2">
@@ -128,15 +125,23 @@ export default function EmployeeDashboard() {
                 </div>
               </div>
 
-              {/* PERSONAL INFO ROW */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
                 <InfoCard icon={<User className="text-blue-500" />} title="Full Name" value={profile?.name} />
-                <InfoCard icon={<Mail className="text-purple-500" />} title="Work Email" value={profile?.email} />
-                <InfoCard icon={<Building2 className="text-emerald-500" />} title="Department" value={profile?.org?.name} />
-                <InfoCard icon={<Hash className="text-orange-500" />} title="Identity ID" value={orgId || "---"} />
+                <InfoCard 
+                  icon={<Mail className="text-purple-500" />} 
+                  title="Work Email" 
+                  value={profile?.email} 
+                  isCopyable={true} 
+                />
+                <InfoCard icon={<Building2 className="text-emerald-500" />} title="Organization" value={profile?.org?.name} />
+                <InfoCard 
+                  icon={<Hash className="text-orange-500" />} 
+                  title="Organization ID" 
+                  value={orgId || "---"} 
+                  isCopyable={true}
+                />
               </div>
 
-              {/* TASK FOCUS SECTION */}
               <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-8 flex items-center gap-4">
                 Active Sprint Operations <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
               </h3>
@@ -167,16 +172,58 @@ export default function EmployeeDashboard() {
 
 /* ---------- SHARED UI COMPONENTS ---------- */
 
-function InfoCard({ title, value, icon }) {
+function InfoCard({ title, value, icon, isCopyable = false }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!isCopyable || !value || value === "---") return;
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy!", err);
+    }
+  };
+
   return (
-    <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/50 rounded-2xl p-6 transition-all group hover:border-blue-300 dark:hover:border-purple-500/30">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800 group-hover:scale-110 transition-transform">
-          {icon}
+    <div 
+      onClick={handleCopy}
+      className={`bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/50 rounded-2xl p-6 transition-all group relative overflow-hidden ${
+        isCopyable ? "cursor-pointer hover:border-blue-300 dark:hover:border-purple-500/30 active:scale-95 shadow-sm" : ""
+      }`}
+    >
+      <div className="flex items-center justify-between mb-3 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800 group-hover:scale-110 transition-transform">
+            {icon}
+          </div>
+          <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{title}</p>
         </div>
-        <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{title}</p>
+        
+        {isCopyable && (
+          <div className="text-slate-400 group-hover:text-blue-500 dark:group-hover:text-purple-400 transition-colors">
+            {copied ? (
+              <CheckCircle2 className="w-4 h-4 text-green-500 animate-in zoom-in" />
+            ) : (
+              <Copy className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+            )}
+          </div>
+        )}
       </div>
-      <h3 className="text-sm font-bold truncate dark:text-white">{value || "---"}</h3>
+
+      <h3 className="text-sm font-bold truncate dark:text-white relative z-10">
+        {copied ? (
+          <span className="text-green-500 animate-in fade-in slide-in-from-left-1">Copied!</span>
+        ) : (
+          value || "---"
+        )}
+      </h3>
+
+      {/* Subtle Glow background on hover */}
+      <div className={`absolute bottom-0 right-0 w-16 h-16 blur-2xl transition-all duration-500 ${
+        copied ? "bg-green-500/20" : "bg-blue-600/0 group-hover:bg-blue-600/10 dark:group-hover:bg-purple-600/10"
+      }`} />
     </div>
   );
 }
@@ -195,14 +242,12 @@ function PlaceholderCard({ title, icon, description, badge, accent }) {
       <h3 className="text-2xl font-black mb-3 dark:text-white">{title}</h3>
       <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8">{description}</p>
       
-      {/* Visual Placeholder for real content */}
       <div className="w-full bg-slate-50 dark:bg-slate-950/50 h-32 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center group-hover:border-blue-300 dark:group-hover:border-purple-500/30 transition-colors">
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
           Initializing Stream <ChevronRight className="w-3 h-3 animate-pulse" />
         </p>
       </div>
 
-      {/* Subtle Bottom Accent Glow */}
       <div className={`absolute -bottom-10 -right-10 w-32 h-32 blur-[60px] opacity-20 bg-${accent}-500`} />
     </div>
   );
