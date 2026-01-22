@@ -1,5 +1,4 @@
 import api from "./api";
-
 import Router from "next/router";
 
 export const fetchMyProfile = async () => {
@@ -7,7 +6,7 @@ export const fetchMyProfile = async () => {
   try {
     const { data } = await api.post(
       "/api/users/me",
-      {},
+      {}, // empty body
       {
         headers: {
           Authorization: `Bearer ${token}`,
