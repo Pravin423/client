@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getProjects } from "@/utils/project";
-
+import { useCallback } from "react";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import Router, { useRouter } from "next/router";
 import { logoutUser } from "@/utils/auth";
@@ -22,29 +22,25 @@ export default function AdminDashboard() {
   const [projectsLoading, setProjectsLoading] = useState(true);
 
   // Fetch projects function
-  const loadProjects = async () => {
-    if (!orgId) return; // wait until orgId is available
-    setProjects([]); // clear previous projects to avoid stale display
+  const loadProjects = useCallback(async () => {
+    if (!orgId) return;
     setProjectsLoading(true);
     try {
-      const projectData = await getProjects(orgId); // pass orgId if your API supports it
-      if (Array.isArray(projectData)) {
-        setProjects(projectData);
-      } else if (projectData && Array.isArray(projectData.projects)) {
-        setProjects(projectData.projects);
-      } else {
-        setProjects([]);
-      }
+      const projectData = await getProjects(orgId);
+      if (Array.isArray(projectData)) setProjects(projectData);
+      else if (projectData?.projects) setProjects(projectData.projects);
+      else setProjects([]);
     } catch (err) {
       console.error("Failed to load projects", err);
       setProjects([]);
     } finally {
       setProjectsLoading(false);
     }
-  };
+  }, [orgId]);
 
+  // THEME & PROFILE LOAD
   useEffect(() => {
-    // THEME SYNC
+    // Theme
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "light") {
       setIsDark(false);
@@ -53,7 +49,7 @@ export default function AdminDashboard() {
       document.documentElement.classList.add("dark");
     }
 
-    // Load profile
+    // Profile
     const loadProfile = async () => {
       try {
         const data = await fetchMyProfile();
@@ -64,33 +60,25 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     };
-
     loadProfile();
   }, []);
 
-  // REFRESH PROJECTS whenever orgId changes (this fixes stale projects)
   useEffect(() => {
-    loadProjects();
-  }, [orgId]);
+    setProjects([]);
+    setProjectsLoading(true);
+    if (orgId) loadProjects();
+  }, [orgId, loadProjects]);
 
-  // Refresh projects when returning from project creation page
+
+  // ✅ Projects refresh when returning from create page
   useEffect(() => {
-    const handleRouteChange = (url) => {
-      if (url === "/admin" || url === "/admin/") {
-        loadProjects(); // Refresh projects whenever returning to admin dashboard
-      }
-    };
-    router.events.on("routeChangeComplete", handleRouteChange);
-    return () => router.events.off("routeChangeComplete", handleRouteChange);
-  }, [router.events]);
-// Refresh projects when returning from project creation page
-useEffect(() => {
-  if (router.query.refreshProjects) {
-    loadProjects(); // reload projects
-    // Remove the query parameter without reloading page
-    router.replace("/admin", undefined, { shallow: true });
-  }
-}, [router.query, orgId]);
+    if (router.query.refreshProjects) {
+      loadProjects();
+      router.replace("/admin", undefined, { shallow: true });
+    }
+  }, [router.query.refreshProjects, loadProjects]);
+
+
   const toggleTheme = () => {
     const newDark = !isDark;
     setIsDark(newDark);
@@ -115,7 +103,6 @@ useEffect(() => {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <div className="min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-200 transition-colors duration-300 selection:bg-purple-500/30">
-
         {/* AMBIENT GLOW */}
         <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] pointer-events-none -z-10 hidden dark:block" />
 
@@ -223,9 +210,7 @@ useEffect(() => {
                   Loading projects...
                 </div>
               ) : projects.length === 0 ? (
-                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                  No projects created yet.
-                </p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">No projects created yet.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
                   {projects.map((project) => (
