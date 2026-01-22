@@ -27,13 +27,6 @@ export const AuthProvider = ({ children }) => {
       setAccessToken(token);
       setRole(decoded.role);
       setOrgId(decoded.org_id);
-
-      // Add this
-      setUser({
-        name: decoded.name,  // make sure your backend JWT includes "name"
-        email: decoded.email,
-        role: decoded.role
-      });
     } catch (err) {
       localStorage.removeItem("accessToken");
     }
