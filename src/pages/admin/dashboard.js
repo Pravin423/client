@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { getProjects } from "@/utils/project";
+
 import ProtectedRoute from "../../components/ProtectedRoute";
 import Router from "next/router";
 import { logoutUser } from "@/utils/auth";
@@ -15,9 +17,11 @@ export default function AdminDashboard() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(true);
+  const [projects, setProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
 
   useEffect(() => {
-    // Theme Sync
+    // THEME SYNC
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "light") {
       setIsDark(false);
@@ -28,14 +32,29 @@ export default function AdminDashboard() {
 
     const loadData = async () => {
       try {
+        // FETCH PROFILE
         const data = await fetchMyProfile();
         setProfile(data);
+
+        // FETCH PROJECTS
+        setProjectsLoading(true);
+        const projectData = await getProjects();
+        if (Array.isArray(projectData)) {
+          setProjects(projectData);
+        } else if (projectData && Array.isArray(projectData.projects)) {
+          setProjects(projectData.projects);
+        } else {
+          setProjects([]);
+        }
       } catch (err) {
-        console.error("Failed to load admin profile", err);
+        console.error("Failed to load admin data", err);
+        setProjects([]);
       } finally {
         setLoading(false);
+        setProjectsLoading(false);
       }
     };
+
     loadData();
   }, []);
 
@@ -133,11 +152,50 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              {/* MANAGEMENT MODULES */}
-              <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-8 flex items-center gap-4">
-                Management Modules <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
-              </h3>
-              
+              {/* PROJECTS SECTION */}
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] flex items-center gap-4">
+                  Projects
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+                </span>
+                <button
+                  onClick={() => Router.push('/projects/create')}
+                  className="ml-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-full shadow transition-colors"
+                >
+                  + New Project
+                </button>
+              </div>
+
+              {projectsLoading ? (
+                <div className="flex items-center gap-3 text-slate-500 text-sm font-bold">
+                  <div className="h-4 w-4 border-2 border-purple-500/30 border-t-purple-600 rounded-full animate-spin"></div>
+                  Loading projects...
+                </div>
+              ) : projects.length === 0 ? (
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                  No projects created yet.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+                  {projects.map((project) => (
+                    <div
+                      key={project._id}
+                      className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:shadow-lg transition-all"
+                    >
+                      <h4 className="text-lg font-bold dark:text-white mb-2">{project.name}</h4>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                        {project.description || "No description provided"}
+                      </p>
+                      <div className="flex justify-between items-center text-[10px] uppercase tracking-widest font-bold text-slate-400">
+                        <span>Status: {project.status || "active"}</span>
+                        <span>{new Date(project.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ADMIN MODULE CARDS */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <AdminActionCard
                   title="User Management"
@@ -177,7 +235,6 @@ export default function AdminDashboard() {
 }
 
 /* ---------- UI COMPONENTS ---------- */
-
 function InfoCard({ title, value, icon, isCopyable = false }) {
   const [copied, setCopied] = useState(false);
 

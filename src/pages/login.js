@@ -14,7 +14,6 @@ import {
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
