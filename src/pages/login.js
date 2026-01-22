@@ -122,7 +122,7 @@ export default function LoginPage() {
            
           </button>
            <button
-            onClick={() => router.push("#")}
+            onClick={() => router.push("/org/register")}
             className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 py-2.5 rounded-md font-medium transition"
           >
             Create an organization(pending)
