@@ -2,6 +2,17 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/AuthContext";
 import Link from "next/link";
+import { 
+  Command, 
+  User, 
+  Mail, 
+  Lock, 
+  Hash, 
+  ShieldCheck, 
+  ArrowRight, 
+  AlertCircle,
+  Sparkles
+} from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -31,141 +42,161 @@ export default function RegisterPage() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-[#020617] text-slate-200 flex flex-col selection:bg-purple-500/30">
+      
+      {/* GLOW DECOR */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-purple-600/10 blur-[120px] pointer-events-none -z-10" />
+
       {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-10 py-4 border-b bg-white">
-        <Link href="/" className="text-xl  font-bold text-blue-600">
-          ScrumFlow
+      <nav className="flex justify-between items-center px-8 py-6 bg-transparent">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="bg-purple-600 p-1.5 rounded-lg shadow-[0_0_20px_rgba(147,51,234,0.3)] group-hover:scale-110 transition-transform">
+            <Command className="text-white w-5 h-5" />
+          </div>
+          <span className="text-2xl font-black tracking-tighter text-white">
+            Manage<span className="text-purple-500">X</span>
+          </span>
         </Link>
       </nav>
 
       {/* REGISTER CONTAINER */}
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md bg-white border rounded-xl shadow-lg p-8">
+      <div className="flex-1 flex items-center justify-center px-4 pb-12">
+        <div className="w-full max-w-[480px]">
+          {/* CARD */}
+          <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-[2.5rem] shadow-2xl p-10 relative overflow-hidden">
+            
+            {/* CARD GLOW ACCENT */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/20 blur-[60px]" />
 
-          {/* HEADER */}
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Create your account
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Join your organization and start managing sprints
-            </p>
-          </div>
-
-          {/* ERROR */}
-          {error && (
-            <div className="mb-4 text-sm text-red-600 text-center bg-red-50 border border-red-200 rounded p-2">
-              {error}
-            </div>
-          )}
-
-          {/* FORM */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-2.5 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+            {/* HEADER */}
+            <div className="text-center mb-10 relative">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black uppercase tracking-widest mb-4">
+                <Sparkles className="w-3 h-3" /> Start Your Journey
+              </div>
+              <h1 className="text-3xl font-black text-white tracking-tight">
+                Create Account
+              </h1>
+              <p className="text-slate-400 mt-2 font-medium">
+                Join the workspace of the future.
+              </p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2.5 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+            {/* ERROR MESSAGE */}
+            {error && (
+              <div className="mb-6 flex items-center gap-3 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/20 rounded-2xl p-4">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                {error}
+              </div>
+            )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organization ID
-              </label>
-              <input
-                type="text"
-                placeholder="your-org-id"
-                value={org_id}
-                onChange={(e) => setOrg_id(e.target.value)}
-                className="w-full p-2.5  text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+            {/* FORM */}
+            <form onSubmit={handleSubmit} className="space-y-5 relative">
+              
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Full Name</label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-950/50 border border-slate-800 text-white rounded-2xl focus:outline-none focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all font-medium placeholder:text-slate-600"
+                    required
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Role
-              </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full p-2.5 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-950/50 border border-slate-800 text-white rounded-2xl focus:outline-none focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all font-medium placeholder:text-slate-600"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 text-xs">Org ID</label>
+                  <div className="relative group">
+                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
+                    <input
+                      type="text"
+                      value={org_id}
+                      onChange={(e) => setOrg_id(e.target.value)}
+                      placeholder="org-id"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 text-white rounded-2xl focus:outline-none focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all text-sm font-medium"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 text-xs">Role</label>
+                  <div className="relative group">
+                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
+                    <select
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 text-white rounded-2xl focus:outline-none focus:border-purple-500/50 transition-all text-sm font-medium appearance-none"
+                    >
+                      <option className="bg-slate-900" value="employee">Employee</option>
+                      <option className="bg-slate-900" value="manager">Manager</option>
+                      <option className="bg-slate-900" value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2 pb-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Password</label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-950/50 border border-slate-800 text-white rounded-2xl focus:outline-none focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all font-medium placeholder:text-slate-600"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 text-white py-4 rounded-2xl font-bold transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] flex items-center justify-center gap-2 group active:scale-[0.98]"
               >
-                <option value="employee">Employee</option>
-                <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
-              </select>
+                {loading ? "Initializing..." : "Create Account"}
+                {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+              </button>
+            </form>
+
+            {/* DIVIDER */}
+            <div className="flex items-center my-8">
+              <div className="flex-1 h-px bg-slate-800"></div>
+              <span className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Existing User?</span>
+              <div className="flex-1 h-px bg-slate-800"></div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2.5 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
+            {/* LOGIN REDIRECT */}
             <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-2.5 rounded-md text-white font-medium transition ${
-                loading
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              onClick={() => router.push("/login")}
+              className="w-full border-2 border-slate-800 text-slate-400 hover:border-purple-500/50 hover:text-purple-400 py-3.5 rounded-2xl font-bold transition-all"
             >
-              {loading ? "Creating account..." : "Create Account"}
+              Back to Login
             </button>
-          </form>
-
-          {/* DIVIDER */}
-          <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="px-3 text-xs text-gray-400">
-              ALREADY HAVE AN ACCOUNT?
-            </span>
-            <div className="flex-1 h-px bg-gray-200"></div>
           </div>
-
-          {/* LOGIN */}
-          <button
-            onClick={() => router.push("/login")}
-            className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 py-2.5 rounded-md font-medium transition"
-          >
-            Sign in instead
-          </button>
-
         </div>
       </div>
-    </>
+    </div>
   );
 }
