@@ -104,7 +104,7 @@ export default function AdminDashboard() {
     <ProtectedRoute allowedRoles={["admin"]}>
       <div className="min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-200 transition-colors duration-300 selection:bg-purple-500/30">
         {/* AMBIENT GLOW */}
-        <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] pointer-events-none -z-10 hidden dark:block" />
+        <div className="fixed top-0 left-1/4 w-125 h-125 bg-purple-600/5 blur-[120px] pointer-events-none -z-10 hidden dark:block" />
 
         {/* TOP BAR */}
         <header className="sticky top-0 z-50 flex justify-between items-center px-8 py-4 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/50">
