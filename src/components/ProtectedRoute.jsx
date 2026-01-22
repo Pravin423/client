@@ -7,27 +7,20 @@ const ProtectedRoute = ({ allowedRoles = [], children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return; // ⏳ wait until auth is restored
-
+    if (loading) return; // Wait for auth restoration
     if (!accessToken) {
-      router.replace("/login");
+      if (typeof window !== "undefined") router.replace("/login");
       return;
     }
-
     if (allowedRoles.length && !allowedRoles.includes(role)) {
-      router.replace("/login"); // or /unauthorized
+      if (typeof window !== "undefined") router.replace("/login");
     }
   }, [accessToken, role, loading, router]);
 
-  // ⛔ Prevent UI flicker
+  // Prevent UI flicker and router errors
   if (loading) return null;
-
   if (!accessToken) return null;
-
-  if (allowedRoles.length && !allowedRoles.includes(role)) {
-    return null;
-  }
-
+  if (allowedRoles.length && !allowedRoles.includes(role)) return null;
   return children;
 };
 

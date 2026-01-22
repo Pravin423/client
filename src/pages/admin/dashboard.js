@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getProjects } from "@/utils/project";
 
 import ProtectedRoute from "../../components/ProtectedRoute";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import { logoutUser } from "@/utils/auth";
 import { fetchMyProfile } from "@/utils/user";
 import { useAuth } from "@/context/AuthContext";
@@ -14,11 +14,34 @@ import {
 
 export default function AdminDashboard() {
   const { orgId } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(true);
   const [projects, setProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
+
+  // Fetch projects function
+  const loadProjects = async () => {
+    if (!orgId) return; // wait until orgId is available
+    setProjects([]); // clear previous projects to avoid stale display
+    setProjectsLoading(true);
+    try {
+      const projectData = await getProjects(orgId); // pass orgId if your API supports it
+      if (Array.isArray(projectData)) {
+        setProjects(projectData);
+      } else if (projectData && Array.isArray(projectData.projects)) {
+        setProjects(projectData.projects);
+      } else {
+        setProjects([]);
+      }
+    } catch (err) {
+      console.error("Failed to load projects", err);
+      setProjects([]);
+    } finally {
+      setProjectsLoading(false);
+    }
+  };
 
   useEffect(() => {
     // THEME SYNC
@@ -30,33 +53,36 @@ export default function AdminDashboard() {
       document.documentElement.classList.add("dark");
     }
 
-    const loadData = async () => {
+    // Load profile
+    const loadProfile = async () => {
       try {
-        // FETCH PROFILE
         const data = await fetchMyProfile();
         setProfile(data);
-
-        // FETCH PROJECTS
-        setProjectsLoading(true);
-        const projectData = await getProjects();
-        if (Array.isArray(projectData)) {
-          setProjects(projectData);
-        } else if (projectData && Array.isArray(projectData.projects)) {
-          setProjects(projectData.projects);
-        } else {
-          setProjects([]);
-        }
       } catch (err) {
-        console.error("Failed to load admin data", err);
-        setProjects([]);
+        console.error("Failed to load profile", err);
       } finally {
         setLoading(false);
-        setProjectsLoading(false);
       }
     };
 
-    loadData();
+    loadProfile();
   }, []);
+
+  // REFRESH PROJECTS whenever orgId changes (this fixes stale projects)
+  useEffect(() => {
+    loadProjects();
+  }, [orgId]);
+
+  // Refresh projects when returning from project creation page
+  useEffect(() => {
+    const handleRouteChange = (url) => {
+      if (url === "/admin" || url === "/admin/") {
+        loadProjects(); // Refresh projects whenever returning to admin dashboard
+      }
+    };
+    router.events.on("routeChangeComplete", handleRouteChange);
+    return () => router.events.off("routeChangeComplete", handleRouteChange);
+  }, [router.events]);
 
   const toggleTheme = () => {
     const newDark = !isDark;
@@ -73,6 +99,10 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await logoutUser();
     Router.replace("/login");
+  };
+
+  const handleNewProject = () => {
+    Router.push("/projects/create");
   };
 
   return (
@@ -156,21 +186,21 @@ export default function AdminDashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div className="flex-1 flex items-center gap-4">
                   <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] whitespace-nowrap">
-                   Projects
+                    Projects
                   </span>
                   <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => Router.push('/projects')}
+                    onClick={() => Router.push("/projects")}
                     className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl transition-all active:scale-95"
                   >
                     View All
                   </button>
 
                   <button
-                    onClick={() => Router.push('/projects/create')}
+                    onClick={handleNewProject}
                     className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all active:scale-95"
                   >
                     <span className="hidden sm:inline">New Project</span>
@@ -179,6 +209,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* PROJECTS LIST */}
               {projectsLoading ? (
                 <div className="flex items-center gap-3 text-slate-500 text-sm font-bold">
                   <div className="h-4 w-4 border-2 border-purple-500/30 border-t-purple-600 rounded-full animate-spin"></div>
@@ -191,14 +222,9 @@ export default function AdminDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
                   {projects.map((project) => (
-                    <div
-                      key={project._id}
-                      className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:shadow-lg transition-all"
-                    >
+                    <div key={project._id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:shadow-lg transition-all">
                       <h4 className="text-lg font-bold dark:text-white mb-2">{project.name}</h4>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
-                        {project.description || "No description provided"}
-                      </p>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">{project.description || "No description provided"}</p>
                       <div className="flex justify-between items-center text-[10px] uppercase tracking-widest font-bold text-slate-400">
                         <span>Status: {project.status || "active"}</span>
                         <span>{new Date(project.createdAt).toLocaleDateString()}</span>
