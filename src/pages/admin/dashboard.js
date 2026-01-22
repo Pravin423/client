@@ -83,7 +83,14 @@ export default function AdminDashboard() {
     router.events.on("routeChangeComplete", handleRouteChange);
     return () => router.events.off("routeChangeComplete", handleRouteChange);
   }, [router.events]);
-
+// Refresh projects when returning from project creation page
+useEffect(() => {
+  if (router.query.refreshProjects) {
+    loadProjects(); // reload projects
+    // Remove the query parameter without reloading page
+    router.replace("/admin", undefined, { shallow: true });
+  }
+}, [router.query, orgId]);
   const toggleTheme = () => {
     const newDark = !isDark;
     setIsDark(newDark);
