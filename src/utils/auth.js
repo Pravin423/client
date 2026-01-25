@@ -20,9 +20,9 @@ export const registerUser = async (name, email, password, org_id, role) => {
 };
 
 // Login user
-export const loginUser = async (email, password, org_id) => {
+export const loginUser = async (email, password) => {
   try {
-    const res = await api.post("/api/auth/login", { email, password, org_id });
+    const res = await api.post("/api/auth/login", { email, password });
     console.log("Logged in:", res.data);
     return res.data; // contains accessToken + role
   } catch (err) {

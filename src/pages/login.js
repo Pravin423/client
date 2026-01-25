@@ -28,7 +28,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password, orgId);
+      await login(email, password);
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
@@ -123,22 +123,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="space-y-2 pb-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">
-                  Organization ID
-                </label>
-                <div className="relative group">
-                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
-                  <input
-                    type="text"
-                    value={orgId}
-                    onChange={(e) => setOrgId(e.target.value)}
-                    placeholder="org-123-xyz"
-                    className="w-full pl-12 pr-4 py-3.5 bg-slate-950/50 border border-slate-800 text-white rounded-2xl focus:outline-none focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all font-medium placeholder:text-slate-600"
-                    required
-                  />
-                </div>
-              </div>
+        
 
               <button
                 type="submit"
